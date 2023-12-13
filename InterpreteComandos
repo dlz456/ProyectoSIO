@@ -1,0 +1,47 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+
+#define Limite_Entrada  1024 // Cantidad limite de caracteres de la entrada
+#define Limite_Tokens  64 // cantidad limite de tokens aceptados
+
+
+
+
+int main() {
+
+    char entrada[Limite_Entrada]; //Variable que guarda la entrada
+    char *Tokens[Limite_Tokens]; //Variable que guarda los tokens
+     //Variable bandera para controlar la ejecucion de la consola
+
+    while (1){
+    	printf("Consola Creada> "); //Imprimir mensaje de la consola
+
+    	fgets(entrada, sizeof(entrada), stdin); //leer comandos ingresados
+
+    	if(strcmp(entrada, "salir\n")==0 ){ //instruccion para romper el bucle
+    	  break;
+    	}
+
+    	int i =0;
+    	Tokens[i] = strtok(entrada, " \t\n");
+    	while(Tokens[i] != NULL){ // bucle para leer espacios en blanco
+    	   i++;
+    	   Tokens[i] = strtok(NULL, " \t\n");
+    	}
+
+    	if (Tokens[0] != NULL) { //bloque que pasa los tokens al interprete de comandos
+            if (strcmp(Tokens[0], "salir") == 0) {
+                break;
+            } else {
+
+            }
+        }
+
+    }
+
+    return 0;
+}
