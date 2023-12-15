@@ -12,7 +12,7 @@
 
 // FunciÃ³n para leer comandos y ejecutarlos
 
-int leer_comandos(char **tokens){
+int leer_comandos(char **tokens, int ejecucion_en_segundo_plano){
     
     pid_t pid, wpid;
 	int status;
@@ -81,12 +81,16 @@ int leer_comandos(char **tokens){
   		 exit(EXIT_FAILURE);
   	 
 	} else{ // Proceso Padre
-  	 do{
-  		 // Esperar a que el proceso hijo termine
-   	 wpid = waitpid(pid, &status, WUNTRACED);
-  	 } while(!WIFEXITED(status) && !WIFSIGNALED(status)); 	//bucle que mantiene al proceso padre en espera mientras se ejecuta el proceso hijo
-  	 
-	}
+        if (!ejecucion_en_segundo_plano) {
+            do {
+                // Esperar a que el proceso hijo termine
+                wpid = waitpid(pid, &status, WUNTRACED);
+            } while(!WIFEXITED(status) && !WIFSIGNALED(status));  // Bucle que mantiene al proceso padre en espera mientras se ejecuta el proceso hijo
+        } else {
+            // Proceso en segundo plano, imprimir PID y continuar
+            printf("Proceso en segundo plano ejecutándose con PID: %d...\n", pid);
+        }
+    }
     
    return 1;    
 }
@@ -122,13 +126,20 @@ int main() {
   		 i++;
   		 Tokens[i] = strtok(NULL, " \t\n");
   	 }
+
+    // Verificar si el último token es "&" para ejecución en segundo plano
+    int ejecucion_en_segundo_plano = 0;
+    if (i > 0 && strcmp(Tokens[i - 1], "&") == 0) {
+        ejecucion_en_segundo_plano = 1;
+        Tokens[i - 1] = NULL; // Eliminar el token "&"
+    }
   	 
   	 if (Tokens[0] != NULL) { //bloque que pasa los tokens al interprete de comandos
   			 // Ejecutar comandos o salir del programa
    		 if (strcmp(Tokens[0], "salir") == 0) {
        		 break;
    		 } else {
-       		 leer_comandos(Tokens);
+       		 leer_comandos(Tokens, ejecucion_en_segundo_plano);
    		 }
    	 }
   	 
